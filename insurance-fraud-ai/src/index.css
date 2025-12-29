@@ -1,0 +1,226 @@
+/* GLOBAL */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+               "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  color: #000;
+  background: linear-gradient(135deg, #f8fafc, #eef2f7);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* FADE IN */
+.fade-in {
+  animation: fadeUp 0.8s ease forwards;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* HERO */
+.hero {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.hero-title {
+  font-size: 5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+  font-size: 1.5rem;
+  max-width: 700px;
+  line-height: 1.5;
+}
+
+.hero-actions {
+  margin-top: 3rem;
+  display: flex;
+  gap: 2rem;
+}
+
+.primary-btn,
+.secondary-btn {
+  padding: 1rem 2.5rem;
+  border-radius: 24px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.primary-btn {
+  background: #000;
+  color: #fff;
+}
+
+.secondary-btn {
+  background: #fff;
+  border: 1px solid #ddd;
+}
+
+.primary-btn:hover,
+.secondary-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+/* SECTIONS */
+.section {
+  padding: 6rem 8%;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 3rem;
+  margin-bottom: 4rem;
+}
+
+/* CARDS */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2.5rem;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.card h3 {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+/* ===== PAGE BACKGROUND GRADIENT ===== */
+.home {
+  min-height: 100vh;
+  background: linear-gradient(
+    180deg,
+    #eef6ff 0%,
+    #f5faff 40%,
+    #c7d9f5 75%,
+    #8fb0e8 100%
+  );
+}
+
+/* ===== HERO SLIDE-IN ANIMATION ===== */
+.hero {
+  transform: translateY(40px);
+  opacity: 0;
+  transition: all 0.9s ease;
+}
+
+.fade-in .hero {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Title emphasis */
+.hero-title {
+  font-size: 5.5rem;
+  letter-spacing: -0.03em;
+}
+
+/* Subtitle refinement */
+.hero-subtitle {
+  margin-top: 1.2rem;
+  max-width: 750px;
+}
+
+/* Button alignment stays same */
+.hero-actions {
+  margin-top: 3.5rem;
+}
+
+/* ===== SECTION SPACING ===== */
+.section {
+  padding-top: 8rem;
+  padding-bottom: 8rem;
+}
+
+/* ===== DASHBOARD CARDS STAY GRID ===== */
+/* (no change, preserved intentionally) */
+
+/* ===== ABOUT STACKED VERTICALLY ===== */
+#about .card-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* About cards slightly softer */
+#about .card {
+  background: rgba(255, 255, 255, 0.92);
+}
+
+/* ===== CARD HOVER POLISH ===== */
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+}
+
+/* ABOUT TEXT REFINEMENT */
+.about-title {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 1.2rem;
+}
+
+.about-text {
+  font-size: 1.15rem;
+  line-height: 1.7;
+  text-align: center;
+}
+
+/* TEAM CARD */
+.team-card {
+  align-items: center;
+  text-align: center;
+}
+
+.team-photo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 1rem auto;
+  display: block;
+}
+
+.linkedin-link {
+  margin-top: 0.8rem;
+  display: inline-block;
+  font-weight: 600;
+}
+
+/* DASHBOARD TEXT SIZE BOOST */
+.card p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+

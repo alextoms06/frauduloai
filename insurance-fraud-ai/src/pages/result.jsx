@@ -4,131 +4,149 @@ import { useNavigate } from "react-router-dom";
 const Result = () => {
   const [result, setResult] = useState(null);
   const [storyData, setStoryData] = useState({});
+  const [verdict, setVerdict] = useState("");
   const [showStats, setShowStats] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const storedResult = JSON.parse(localStorage.getItem("result"));
     const storedStory = JSON.parse(localStorage.getItem("story"));
+
     if (!storedResult || !storedStory) {
       navigate("/story");
       return;
     }
-    setResult(storedResult);
+
+    const storyProb = Number(storedResult.storyProb ?? 0);
+    const imageProb = Number(storedResult.imageProb ?? 0);
+
+    let finalVerdict = "Possible Fake / Minor Damage";
+    if (storyProb < 40) finalVerdict = "fake claim";
+    else if (imageProb >= 70) finalVerdict = "real accident";
+
+    setResult({ storyProb, imageProb });
     setStoryData(storedStory);
+    setVerdict(finalVerdict);
+
+    const existing =
+      JSON.parse(localStorage.getItem("dashboardLogs")) || [];
+
+    existing.push({
+      verdict: finalVerdict,
+      storyProb,
+      imageProb,
+      timestamp: Date.now(),
+    });
+
+    localStorage.setItem(
+      "dashboardLogs",
+      JSON.stringify(existing)
+    );
   }, [navigate]);
 
   if (!result) return null;
 
   const { storyProb, imageProb } = result;
-  const isFakeStory = storyProb < 40;
-  const isMajorCrash = imageProb >= 70;
+  const isFake = verdict === "fake claim";
+  const isReal = verdict === "real accident";
 
   const handleGenerateCertificate = () => {
-    const certificateWindow = window.open("", "_blank");
-    certificateWindow.document.write(`
+    const w = window.open("", "_blank");
+    w.document.write(`
       <html>
         <head><title>Insurance Certificate</title></head>
-        <body style="font-family:sans-serif; padding: 20px;">
-          <h1 style="color:red;">APPROVED</h1>
+        <body style="font-family:sans-serif; padding:20px;">
+          <h1 style="color:#1a7f37;">APPROVED</h1>
           <h2>Insurance Claim Details</h2>
           <p><strong>Name:</strong> ${storyData.fullName || "N/A"}</p>
-          <p><strong>Contact Number:</strong> ${storyData.contact || "N/A"}</p>
-          <p><strong>Vehicle Number:</strong> ${storyData.vehicle || "N/A"}</p>
-          <p><strong>Date & Time:</strong> ${storyData.datetime || "N/A"}</p>
-          <p><strong>Address:</strong> ${storyData.address || "N/A"}</p>
-          <p><strong>Profession:</strong> ${storyData.profession || "N/A"}</p>
-          <p><strong>Accident Description:</strong> ${storyData.description || "N/A"}</p>
+          <p><strong>Vehicle:</strong> ${storyData.vehicle || "N/A"}</p>
+          <p><strong>Date:</strong> ${storyData.datetime || "N/A"}</p>
+          <hr/>
           <p><strong>Story Confidence:</strong> ${storyProb}%</p>
-          <p><strong>Image Confidence:</strong> ${imageProb !== null ? imageProb + "%" : "N/A"}</p>
+          <p><strong>Image Confidence:</strong> ${imageProb}%</p>
         </body>
       </html>
     `);
-    certificateWindow.print();
+    w.print();
   };
 
   return (
     <div
-      className="page"
+      className="result-page"
       style={{
         minHeight: "100vh",
         display: "flex",
-        justifyContent: "center",
         alignItems: "center",
-        background: "linear-gradient(to bottom, #FFD700, #FFFACD)",
-        padding: "20px",
-        flexDirection: "column",
-        gap: "30px",
+        justifyContent: "center",
+        padding: "40px",
       }}
     >
-      {/* Verdict Card */}
       <div
         className="card"
         style={{
-          padding: "30px",
-          borderRadius: "25px",
-          maxWidth: "500px",
+          maxWidth: "520px",
           width: "100%",
           textAlign: "center",
-          boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
-          backgroundColor: "#ffffff",
         }}
       >
-        <h1 style={{ fontSize: "2rem", fontWeight: "700", marginBottom: "20px" }}>
+        <h1 style={{ fontSize: "2.2rem", marginBottom: "12px" }}>
           Claim Analysis Result
         </h1>
-        <p style={{ fontSize: "1.2rem", fontWeight: "600" }}>
-          <strong>Verdict:</strong>{" "}
-          {isFakeStory
-            ? "Fake Claim"
-            : isMajorCrash
-            ? "Genuine Claim"
-            : "Possible Fake / Minor Damage"}
-        </p>
-      </div>
 
-      {/* Stats Card */}
-      <div
-        className="card"
-        style={{
-          padding: "25px",
-          borderRadius: "25px",
-          maxWidth: "500px",
-          width: "100%",
-          textAlign: "center",
-          boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
-          backgroundColor: "#ffffff",
-        }}
-      >
+        <p style={{ fontSize: "1.1rem", marginBottom: "20px" }}>
+          <strong>Verdict:</strong>{" "}
+          <span
+            style={{
+              color: isReal
+                ? "#1a7f37"
+                : isFake
+                ? "#b42318"
+                : "#9a6700",
+            }}
+          >
+            {verdict}
+          </span>
+        </p>
+
         <button
           className="apple-btn"
-          style={{ marginBottom: "15px" }}
           onClick={() => setShowStats(!showStats)}
         >
-          Want to know?
+          {showStats ? "Hide details" : "Stats for nerds"}
         </button>
 
         {showStats && (
-          <div style={{ marginTop: "15px" }}>
-            <p style={{ fontSize: "1rem" }}>Story Probability: {storyProb}%</p>
-            {imageProb !== null && <p style={{ fontSize: "1rem" }}>Image Probability: {imageProb}%</p>}
-            <p style={{ fontSize: "1rem", marginTop: "10px" }}>
-              Why Flagged: {isFakeStory ? "Too short or missing details" : "Review image for minor/major crash"}
-            </p>
+          <div style={{ marginTop: "20px", fontSize: "0.95rem" }}>
+            <p>Story Probability: {storyProb}%</p>
+            <p>Image Probability: {imageProb}%</p>
           </div>
         )}
-      </div>
 
-      {/* Action Buttons */}
-      <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", justifyContent: "center" }}>
-        {isMajorCrash && !isFakeStory && (
-          <button className="apple-btn" onClick={handleGenerateCertificate}>
-            Generate Insurance Certificate
+        <div
+          style={{
+            display: "flex",
+            gap: "14px",
+            justifyContent: "center",
+            marginTop: "30px",
+            flexWrap: "wrap",
+          }}
+        >
+          {isReal && (
+            <button
+              className="apple-btn primary"
+              onClick={handleGenerateCertificate}
+            >
+              Generate Certificate
+            </button>
+          )}
+
+          <button
+            className="apple-btn ghost"
+            onClick={() => navigate("/")}
+          >
+            Return Home
           </button>
-        )}
-        <button className="apple-btn ghost" onClick={() => navigate("/")}>
-          Return to Home
-        </button>
+        </div>
       </div>
     </div>
   );

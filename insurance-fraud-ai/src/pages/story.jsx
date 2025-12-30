@@ -14,13 +14,101 @@ const Story = () => {
     description: ""
   });
 
+  /* ===============================
+     STORY ANALYSIS LOGIC (INLINE)
+  =============================== */
+  const analyzeStory = (text = "") => {
+    if (!text.trim()) return 0;
+
+    const story = text.toLowerCase();
+    const words = story.split(/\s+/);
+    const wordCount = words.length;
+    let score = 0;
+
+    // 1. Length score (30)
+    if (wordCount >= 100) score += 30;
+    else if (wordCount >= 60) score += 24;
+    else if (wordCount >= 30) score += 15;
+    else score += 5;
+
+    // 2. Accident keywords (25)
+    const keywords = [
+      "accident",
+      "crash",
+      "hit",
+      "collision",
+      "damage",
+      "injury",
+      "brake",
+      "road",
+      "signal",
+      "vehicle",
+      "speed"
+    ];
+
+    let hits = 0;
+    keywords.forEach((k) => {
+      if (story.includes(k)) hits++;
+    });
+
+    if (hits >= 6) score += 25;
+    else if (hits >= 4) score += 18;
+    else if (hits >= 2) score += 10;
+
+    // 3. Time & place realism (20)
+    const timeWords = ["am", "pm", "morning", "evening", "night"];
+    const placeWords = ["road", "junction", "highway", "signal", "bridge"];
+
+    if (timeWords.some((t) => story.includes(t))) score += 10;
+    if (placeWords.some((p) => story.includes(p))) score += 10;
+
+    // 4. Generic / suspicious phrases (penalty)
+    const suspicious = [
+      "suddenly",
+      "not my fault",
+      "i dont know",
+      "nothing happened",
+      "unexpectedly"
+    ];
+
+    suspicious.forEach((s) => {
+      if (story.includes(s)) score -= 8;
+    });
+
+    // 5. Repetition penalty
+    const uniqueWords = new Set(words);
+    const uniqueness = uniqueWords.size / wordCount;
+    if (uniqueness < 0.45) score -= 10;
+
+    // Clamp
+    score = Math.max(0, Math.min(100, score));
+    return Math.round(score);
+  };
+
+  /* ===============================
+     HANDLERS
+  =============================== */
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = () => {
+    const storyProb = analyzeStory(form.description);
+
+    // Store story
     localStorage.setItem("story", JSON.stringify(form));
-    navigate("/analyze"); // keep your existing flow
+
+    // Store / update result object
+    const prevResult = JSON.parse(localStorage.getItem("result")) || {};
+    localStorage.setItem(
+      "result",
+      JSON.stringify({
+        ...prevResult,
+        storyProb
+      })
+    );
+
+    navigate("/analyze");
   };
 
   return (
@@ -36,7 +124,7 @@ const Story = () => {
         Accident Description
       </h1>
 
-      {/* CARD */}
+      {/* INPUT CARDS */}
       {[
         { label: "Claimant Name", name: "fullName", type: "text" },
         { label: "Contact Number", name: "contact", type: "text" },
@@ -122,10 +210,7 @@ const Story = () => {
 
       <button
         className="button"
-        style={{
-          padding: "14px 28px",
-          fontSize: "1rem"
-        }}
+        style={{ padding: "14px 28px", fontSize: "1rem" }}
         onClick={handleSubmit}
       >
         Analyze Claim
